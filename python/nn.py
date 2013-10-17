@@ -33,11 +33,25 @@ def searchRange( positions, position, potrad, size ):
 	"""
 	withinPot = []
 	for pos in positions:
-		if dist(position, pos) <= potrad:
+		dx = position[0] - pos[0]
+		dy = position[1] - pos[1]
+		dz = position[2] - pos[2]
+		
+		# Localize particle
+		if dx > size/2:
+			dx = dx - size
+		elif dx <= -size/2:
+			dx + size
+		if dy > size/2:
+			dy = dy - size
+		elif dy <= -size/2:
+			dy = dy + size
+		if dz > size/2:
+			dz = dz - size
+		elif dz <= -size/2:
+			dz + size
+		# Append to list if in range
+		if sqrt(dx**2 + dy**2 + dz**2) < potrad*2:
 			withinPot.append(pos)
 
 	return withinPot
-
-
-
-
