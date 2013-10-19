@@ -7,7 +7,7 @@ Description:
 """
 
 import math
-
+import dataIO
 
 def latticeInit(n, size=1):
 	"""
@@ -21,7 +21,6 @@ def latticeInit(n, size=1):
 	"""
 	# How many particles per side?
 	sideNum = math.ceil(n**(1/3))
-	print(sideNum)
 	latConst = size/sideNum
 	# The position list
 	positions = []
@@ -45,21 +44,5 @@ def latticeInit(n, size=1):
 
 
 
-def writePositions(positions, filen):
-	"""
-	Write particle positions to file.
-	
-	Parameters:
-		postitions - the particle positions
-		filen - the file name to write to
-	"""
-	fileout = open(filen, 'w')
-	for pos in positions:
-		fileout.write(str(pos[0]))
-		fileout.write(' ')
-		fileout.write(str(pos[1]))
-		fileout.write(' ')
-		fileout.write(str(pos[2]))
-		fileout.write('\n')
-	fileout.close()	
+
 

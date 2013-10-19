@@ -1,7 +1,7 @@
 """
 File:   nn.py
 Name:   Dan Kolbman
-Date:   10/11/2013
+Date:   Fall 2013
 Description:
         A nearest neigbor search.
 """
@@ -37,7 +37,7 @@ def searchRange( positions, position, potrad, size ):
 		dy = position[1] - pos[1]
 		dz = position[2] - pos[2]
 		
-		# Localize particle
+		# Periodic boundaries
 		if dx > size/2:
 			dx = dx - size
 		elif dx <= -size/2:
