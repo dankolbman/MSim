@@ -13,7 +13,7 @@ import boltzmann
 import math
 import random
 import time
-
+import os
 
 def monteCarloStep( pos, jumpSize, size, potRad, radSep ):
 	"""
@@ -59,10 +59,18 @@ def monteCarloStep( pos, jumpSize, size, potRad, radSep ):
 	
 	
 
-def runSimulation( nParticles, iterations, freq ):
+def runSimulation( nParticles, iterations, freq, path ):
 	"""
-
+	runSimulation : Integer Integer Integer -> None
+	Run a monte carlo simulation
+	
+	Parameters:
+		nParticles - the number of particles
+		iterations - the number of iterations to run for
+		freq - how often to save box states
+		path - where to save file
 	"""
+	# Pre defined
 	radSeperation = 0.0968051
 	jumpSize  = 0.05
 	potentialRange = 0.121006 
@@ -79,22 +87,51 @@ def runSimulation( nParticles, iterations, freq ):
 		
 		# Write data
 		if i%freq == 0:
-			dataIO.writePositions( box, 'data/step{}.dat'.format(i) )
+			dataIO.writePositions( box, path + 'step{}.dat'.format(i) )
 
 	totTime = time.clock() - timeInit
 	print('Took:',totTime)
 
 	# End
 
+
+def runExperiment( numSim, path='data/' ):
+	"""
+	runExperiment : Integer String -> None
+
+	Runs a set of identical simulations a set number of times.
+
+	Parameters:
+		numSim - numeber of simulations to run
+		path - the path to save the experiment data
+	"""
+	
+	nPart = int(input('Number of particles to run: '))	
+	iterations = int(input('Number of iterations: '))
+	freq = int(input('How often to save state: '))
+
+	print( 'Beginning Experiment')
+
+	for i in range(0, numSim):
+		if not os.path.exists(path+'run{}'.format(i)):
+			os.makedirs(path+'run{}'.format(i))
+		runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
+	
+	print( 'Done Experiment' )
+
+
+
 def main():
 	"""
 
 	"""
-	nPart = int(input('Number of particles to run: '))	
-	iterations = int(input('Number of iterations: '))
-	freq = int(input('How often to save state: '))
-	print('Beginning...')
-	runSimulation( nPart, iterations, freq)
+	numExp  = 1
+	while (numExp > 0 ):
+		numSim = int(input('Number of simulations to run: '))
+		runExperiment( numSim, 'data/'+'experiment{}/'.format(numExp) )
+		if input('Do another experiment? (Y/N): ').lower() == 'n':
+			numExp = -1
+		numExp += 1
 
 
 main()
