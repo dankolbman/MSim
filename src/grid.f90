@@ -2,23 +2,12 @@
 ! Dan Kolbman
 ! Initialize a 2d grid and place particles on it
 
-program grid
+module grid
 
   implicit none
   integer    ::  nPart, i    ! Number of particles
   real    :: pos(100, 2)     ! Positions for each particle
-  nPart = 100
-  pos  = gridInit( nPart, 1.0 )
  
-  open (unit=3,file="results.dat",action="write",status="replace")
-
-  ! Dump positions
-  do i=1,nPart
-    ! Write to file
-    write (3,"(F7.5, A2, F7.5)")  pos(i,1), "  ", pos(i,2)
-  end do
-  ! Close file stream
-  close(3)
 
   contains
 
@@ -60,4 +49,4 @@ program grid
   end function gridInit
 
 
-end program
+end module grid
