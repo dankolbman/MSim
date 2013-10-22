@@ -10,6 +10,7 @@ Description:
 import dataIO
 import lattice
 import boltzmann
+import stats
 import math
 import random
 import time
@@ -90,7 +91,15 @@ def runSimulation( nParticles, iterations, freq, path ):
 			dataIO.writePositions( box, path + 'step{}.dat'.format(i) )
 
 	totTime = time.clock() - timeInit
-	print('Took:',totTime)
+	print('Took',totTime,'for simulation')
+	
+	print('Computing g of r for final step')
+	
+	gofr = stats.radDistribution( box, 1, 0.0005 )
+	dataIO.writeGofR(gofr, path + 'gofrStep{}.dat'.format(iterations))
+	
+	print('Took',time.clock()-totTime, 'for g(r)')
+	print('Total time:',time.clock()-timeInit)
 
 	# End
 
@@ -132,6 +141,7 @@ def main():
 		if input('Do another experiment? (Y/N): ').lower() == 'n':
 			numExp = -1
 		numExp += 1
+	
 
 
 main()
