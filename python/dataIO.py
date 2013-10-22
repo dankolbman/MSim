@@ -24,3 +24,40 @@ def writePositions(positions, filen):
 		fileout.write('\n')
 	fileout.close()
 
+def writeGofR(gofr, filen):
+	"""
+	Write g(r) data to file.
+	
+	Parameters:
+		gofr - g(r) data
+		filen - the file path
+	"""
+	fileout = open(filen, 'w')
+	for dat in gofr:
+		fileout.write(str(dat[0]))
+		fileout.write(' ')
+		fileout.write(str(dat[1]))
+		fileout.write('\n')
+	fileout.close()
+
+def readPositions(path):
+	"""
+	Read particle positions from file
+	
+	Parameters:
+		path - the file path
+	Returns:
+		a list of positions
+	"""
+	positions = []
+	filein = open(path, 'r')
+	for pos in filein:
+		newPos = []
+		line = pos.split()
+		newPos.append( float(line[0]) )
+		newPos.append( float(line[1]) )
+		newPos.append( float(line[2]) )
+		positions.append(newPos)
+	filein.close()
+	return positions
+		
