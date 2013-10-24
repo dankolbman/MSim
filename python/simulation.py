@@ -74,7 +74,7 @@ def runSimulation( nParticles, iterations, freq, path ):
 	# Pre defined
 	radSeperation = 0.0968051
 	jumpSize  = 0.05
-	potentialRange = 0.121006
+	potentialRange = 0.121006 
 	
 
 	# Get an initial lattice placment of particles
@@ -83,7 +83,7 @@ def runSimulation( nParticles, iterations, freq, path ):
 	# Start timer
 	timeInit = time.clock()
 
-	for i in range(0, iterations+1):
+	for i in range(0, iterations):
 		box = monteCarloStep( box, jumpSize, 1, potentialRange, radSeperation )
 		
 		# Write data
@@ -120,25 +120,17 @@ def runExperiment( numSim, path='data/' ):
 	freq = int(input('How often to save state: '))
 
 	print( 'Beginning Experiment')
-	
-	gofr = []
 
+	gofrtable = []
 	for i in range(0, numSim):
 		if not os.path.exists(path+'run{}'.format(i)):
 			os.makedirs(path+'run{}'.format(i))
-		gr = runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
-		gofr.append(gr)
-
-	gofrsum = []
-	leng = len(gofr[0][1])-1
-	for i in range(0,len(gofr)-1):
-		suma = 0
-		for j in range(0,leng):
-			suma += gofr[i][1][j]
-		suma = suma/leng
-		gofrsum.append( [gofr[i][0][i], suma] )
-
-	dataIO.writeGofR( gofrsum, path + 'gofrsum.dat' )
+		gofr = runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
+		gofrtable.append(gofr)
+	
+	avgofr = stats.averageGofR(gofrtable)
+	
+	dataIO.writeGofR(avgofr, path + 'avGofR.dat')
 	
 	print( 'Done Experiment' )
 
@@ -148,10 +140,13 @@ def main():
 	"""
 
 	"""
+	path = input("Path to save experiment session? (Default data/): ")
+	if path == "":
+		path = "data/"
 	numExp  = 1
 	while (numExp > 0 ):
 		numSim = int(input('Number of simulations to run: '))
-		runExperiment( numSim, 'data/'+'experiment{}/'.format(numExp) )
+		runExperiment( numSim, path +'experiment{}/'.format(numExp) )
 		if input('Do another experiment? (Y/N): ').lower() == 'n':
 			numExp = -1
 		numExp += 1
@@ -159,9 +154,4 @@ def main():
 
 
 main()
-
-
-
-
-
 
