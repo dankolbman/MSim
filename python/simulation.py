@@ -83,7 +83,7 @@ def runSimulation( nParticles, iterations, freq, path ):
 	# Start timer
 	timeInit = time.clock()
 
-	for i in range(0, iterations+1):
+	for i in range(0, iterations):
 		box = monteCarloStep( box, jumpSize, 1, potentialRange, radSeperation )
 		
 		# Write data
@@ -100,7 +100,7 @@ def runSimulation( nParticles, iterations, freq, path ):
 	
 	print('Took',time.clock()-totTime, 'for g(r)')
 	print('Total time:',time.clock()-timeInit)
-
+	return gofr
 	# End
 
 
@@ -121,10 +121,16 @@ def runExperiment( numSim, path='data/' ):
 
 	print( 'Beginning Experiment')
 
+	gofrtable = []
 	for i in range(0, numSim):
 		if not os.path.exists(path+'run{}'.format(i)):
 			os.makedirs(path+'run{}'.format(i))
-		runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
+		gofr = runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
+		gofrtable.append(gofr)
+	
+	avgofr = stats.averageGofR(gofrtable)
+	
+	dataIO.writeGofR(avgofr, path + 'avGofR.dat')
 	
 	print( 'Done Experiment' )
 
@@ -134,10 +140,13 @@ def main():
 	"""
 
 	"""
+	path = input("Path to save experiment session? (Default data/): ")
+	if path == "":
+		path = "data/"
 	numExp  = 1
 	while (numExp > 0 ):
 		numSim = int(input('Number of simulations to run: '))
-		runExperiment( numSim, 'data/'+'experiment{}/'.format(numExp) )
+		runExperiment( numSim, path +'experiment{}/'.format(numExp) )
 		if input('Do another experiment? (Y/N): ').lower() == 'n':
 			numExp = -1
 		numExp += 1
