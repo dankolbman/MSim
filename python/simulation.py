@@ -74,7 +74,7 @@ def runSimulation( nParticles, iterations, freq, path ):
 	# Pre defined
 	radSeperation = 0.0968051
 	jumpSize  = 0.05
-	potentialRange = 0.121006 
+	potentialRange = 0.121006
 	
 
 	# Get an initial lattice placment of particles
@@ -95,12 +95,12 @@ def runSimulation( nParticles, iterations, freq, path ):
 	
 	print('Computing g of r for final step')
 	
-	gofr = stats.radDistribution( box, 1, 0.0005 )
+	gofr = stats.radDistribution( box, 1, 0.005 )
 	dataIO.writeGofR(gofr, path + 'gofrStep{}.dat'.format(iterations))
 	
 	print('Took',time.clock()-totTime, 'for g(r)')
 	print('Total time:',time.clock()-timeInit)
-
+	return gofr
 	# End
 
 
@@ -120,11 +120,25 @@ def runExperiment( numSim, path='data/' ):
 	freq = int(input('How often to save state: '))
 
 	print( 'Beginning Experiment')
+	
+	gofr = []
 
 	for i in range(0, numSim):
 		if not os.path.exists(path+'run{}'.format(i)):
 			os.makedirs(path+'run{}'.format(i))
-		runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
+		gr = runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
+		gofr.append(gr)
+
+	gofrsum = []
+	leng = len(gofr[0][1])-1
+	for i in range(0,len(gofr)-1):
+		suma = 0
+		for j in range(0,leng):
+			suma += gofr[i][1][j]
+		suma = suma/leng
+		gofrsum.append( [gofr[i][0][i], suma] )
+
+	dataIO.writeGofR( gofrsum, path + 'gofrsum.dat' )
 	
 	print( 'Done Experiment' )
 
@@ -150,9 +164,4 @@ main()
 
 
 
-
-
-
-
-	
 
