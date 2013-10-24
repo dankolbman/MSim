@@ -95,7 +95,7 @@ def runSimulation( nParticles, iterations, freq, path ):
 	
 	print('Computing g of r for final step')
 	
-	gofr = stats.radDistribution( box, 1, 0.0005 )
+	gofr = stats.radDistribution( box, 1, 0.005 )
 	dataIO.writeGofR(gofr, path + 'gofrStep{}.dat'.format(iterations))
 	
 	print('Took',time.clock()-totTime, 'for g(r)')
@@ -145,14 +145,4 @@ def main():
 
 
 main()
-
-
-
-
-
-
-
-
-
-	
 
