@@ -1,4 +1,5 @@
 data/
 *.dat
 __pycache__/
+.pyc
 	
