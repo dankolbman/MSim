@@ -90,6 +90,29 @@ def radDistribution( positions, size, resolution ):
 			gofrsample.append( [ resolution/2 + i *  resolution, shellCountsNorm[i] ] )
 	return gofrsample
 
+def averageGofR( gofrtbl ):
+	"""
+	
+	"""
+	gofr = []
+	# Iterate each row
+	for row in range(0, len(gofrtbl[0])-1):
+		suma = 0
+		# Iterate each table
+		for tbl in range(0, len(gofrtbl)-1):
+			# Add the g(r) to total for that row
+			suma += gofrtbl[tbl][row][1]
+		# Average
+		suma = suma / len(gofrtbl)
+		gofr.append( [ gofrtbl[0][row][0], suma ] )
+
+	return gofr
+
+
+
+
+
+
 
 def test():
 	"""
