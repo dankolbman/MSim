@@ -31,7 +31,7 @@ def productPairEnergyBoltzmannFactors( positions, part, size, potRad, radSep ):
 		if dx > size/2:
 			dx = dx - size
 		elif dx <= -size/2:
-			dx + size
+			dx = dx + size
 		if dy > size/2:
 			dy = dy - size
 		elif dy <= -size/2:
@@ -39,7 +39,7 @@ def productPairEnergyBoltzmannFactors( positions, part, size, potRad, radSep ):
 		if dz > size/2:
 			dz = dz - size
 		elif dz <= -size/2:
-			dz + size
+			dz = dz + size
 		dist =  math.sqrt(dx**2 + dy**2 + dz**2)
 		# Append to list if in range
 		if  dist < potRad*2:

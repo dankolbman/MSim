@@ -69,7 +69,7 @@ def radDistribution( positions, size, resolution ):
 	sucShellVol = []
 
 	for i in range(0, int(math.floor( size/(2*resolution) ))):
-		sucShellVol.append(4/3 * math.pi * resolution**3 + (i + 1)**3 - i**3)
+		sucShellVol.append(4/3 * math.pi * resolution**3 * ((i + 1)**3 - i**3) )
 
 	# Ideal Gas density
 	gasDensIdeal = ( numPart - 1 ) / ( size**3 )
@@ -80,15 +80,16 @@ def radDistribution( positions, size, resolution ):
 	# Normalized shell counts
 	shellCountsNorm = []
 	
-	for i in range(0, len(shellCounts)-1):
-		shellCountsNorm.append( ( 2/numPart) * (shellCounts[i] / shellCountsIdeal[i]) )
+	for i in range(0, len(shellCounts)):
+		shellCountsNorm.append( ( 2/numPart) * (shellCounts[i] / shellCountsIdeal[i]) - 0.5)
 
 	# G(r) sample
 	gofrsample = []
 	#                Cast to int might cause problems
-	for i in range(0, int( size/(2*resolution) - 1 )):
+	for i in range(0, int( size/(2*resolution))):
 			gofrsample.append( [ resolution/2 + i *  resolution, shellCountsNorm[i] ] )
 	return gofrsample
+
 
 def averageGofR( gofrtbl ):
 	"""
