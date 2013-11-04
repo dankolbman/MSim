@@ -81,7 +81,7 @@ def radDistribution( positions, size, resolution ):
 	shellCountsNorm = []
 	
 	for i in range(0, len(shellCounts)):
-		shellCountsNorm.append( ( 2/numPart) * (shellCounts[i] / shellCountsIdeal[i]) - 0.5)
+		shellCountsNorm.append( ( 2/numPart) * (shellCounts[i] / shellCountsIdeal[i]) - 0.85)
 
 	# G(r) sample
 	gofrsample = []
