@@ -60,4 +60,3 @@ def readPositions(path):
 		positions.append(newPos)
 	filein.close()
 	return positions
-		
