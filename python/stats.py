@@ -93,6 +93,7 @@ def averageGofR( gofrtbl ):
 	Calculate the average g(r) from a table of them
 	"""
 	gofr = []
+	app = gofr.append
 	# Iterate each row
 	for row in range(0, len(gofrtbl[0])-1):
 		suma = 0
@@ -102,7 +103,7 @@ def averageGofR( gofrtbl ):
 			suma += gofrtbl[tbl][row][1]
 		# Average
 		suma = suma / len(gofrtbl)
-		gofr.append( [ gofrtbl[0][row][0], suma ] )
+		app( [ gofrtbl[0][row][0], suma ] )
 
 	return gofr
 

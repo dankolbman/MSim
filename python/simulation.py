@@ -11,10 +11,12 @@ import dataIO
 import lattice
 import boltzmann
 import stats
+
 import math
 import random
 import time
 import os
+import gc
 
 def monteCarloStep( pos, jumpSize, size, potRad, radSep ):
 	"""
@@ -58,8 +60,6 @@ def monteCarloStep( pos, jumpSize, size, potRad, radSep ):
 		pos.append( randPart )
 		return pos
 	
-	
-
 def runSimulation( nParticles, iterations, freq, path ):
 	"""
 	runSimulation : Integer Integer Integer -> None
@@ -75,34 +75,23 @@ def runSimulation( nParticles, iterations, freq, path ):
 	radSeperation = 0.0968051
 	jumpSize  = 0.05
 	potentialRange = 0.121006 
-	
-
 	# Get an initial lattice placment of particles
 	box = lattice.latticeInit( nParticles )
-
 	# Start timer
 	timeInit = time.clock()
-
 	for i in range(0, iterations):
 		box = monteCarloStep( box, jumpSize, 1, potentialRange, radSeperation )
-		
 		# Write data
-		if i%freq == 0:
+		if freq != 0 and i%freq == 0:
 			dataIO.writePositions( box, path + 'step{}.dat'.format(i) )
 
 	totTime = time.clock() - timeInit
 	print('Took',totTime,'for simulation')
-	
 	print('Computing g of r for final step')
-	
 	gofr = stats.radDistribution( box, 1, 0.005 )
 	dataIO.writeGofR(gofr, path + 'gofrStep{}.dat'.format(iterations))
-	
-	print('Took',time.clock()-totTime, 'for g(r)')
+	print('Took',time.clock() - totTime - timeInit, 'for g(r)')
 	print('Total time:',time.clock()-timeInit)
-	return gofr
-	# End
-
 
 def runExperiment( numSim, path='data/' ):
 	"""
@@ -114,23 +103,23 @@ def runExperiment( numSim, path='data/' ):
 		numSim - numeber of simulations to run
 		path - the path to save the experiment data
 	"""
-	
 	nPart = int(input('Number of particles to run: '))	
 	iterations = int(input('Number of iterations: '))
-	freq = int(input('How often to save state: '))
+	keep = input('Keep particle position data? (Y/N): ')
+	if keep.lower() == "y":
+		freq = int(input('How often to save state: '))
+	else:
+		freq = 0
 
 	print( 'Beginning Experiment')
 
 	gofrtable = []
+	# Run each simulation
 	for i in range(0, numSim):
+		# Check if the directory already exists
 		if not os.path.exists(path+'run{}'.format(i)):
 			os.makedirs(path+'run{}'.format(i))
-		gofr = runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
-		gofrtable.append(gofr)
-	
-	avgofr = stats.averageGofR(gofrtable)
-	
-	dataIO.writeGofR(avgofr, path + 'avGofR.dat')
+		runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
 	
 	print( 'Done Experiment' )
 
