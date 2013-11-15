@@ -9,12 +9,9 @@ Description:
 import math
 import dataIO
 
-
-
-
 def binCounts( separations, size, resolution ):
 	"""
-	
+	Create a histogram for particle particle separations
 	"""
 
 	bins = []
@@ -34,7 +31,7 @@ def binCounts( separations, size, resolution ):
 
 def radDistribution( positions, size, resolution ):
 	"""
-	
+	Calculate the radial distribution of particles
 	"""
 
 	# Number of particles
@@ -93,7 +90,7 @@ def radDistribution( positions, size, resolution ):
 
 def averageGofR( gofrtbl ):
 	"""
-	
+	Calculate the average g(r) from a table of them
 	"""
 	gofr = []
 	# Iterate each row
@@ -108,12 +105,6 @@ def averageGofR( gofrtbl ):
 		gofr.append( [ gofrtbl[0][row][0], suma ] )
 
 	return gofr
-
-
-
-
-
-
 
 def test():
 	"""
