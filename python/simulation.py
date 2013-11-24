@@ -3,7 +3,8 @@ File:   simulation.py
 Name:   Dan Kolbman
 Date:   Fall 2013
 Description:
-        The simulation container for a simulation
+	Provides a front end for the user to input parameters and run
+	experiments.
 """
 
 
@@ -60,7 +61,7 @@ def monteCarloStep( pos, jumpSize, size, potRad, radSep ):
 		pos.append( randPart )
 		return pos
 	
-def runSimulation( nParticles, iterations, freq, path ):
+def runSimulation( nParticles, iterations, freq, path, init='' ):
 	"""
 	runSimulation : Integer Integer Integer -> None
 	Run a monte carlo simulation
@@ -70,13 +71,17 @@ def runSimulation( nParticles, iterations, freq, path ):
 		iterations - the number of iterations to run for
 		freq - how often to save box states
 		path - where to save file
+		init - the path to an initial box
 	"""
 	# Pre defined
 	radSeperation = 0.0968051
 	jumpSize  = 0.05
-	potentialRange = 0.121006 
-	# Get an initial lattice placment of particles
-	box = lattice.latticeInit( nParticles )
+	potentialRange = 0.121006
+	if init != '' and init != 'i' :		# Load in the initial configuration
+		box = dataIO.readPositions(init) 
+	else:			# Make a box with a lattice
+		# Get an initial lattice placment of particles
+		box = lattice.latticeInit( nParticles )
 	# Start timer
 	timeInit = time.clock()
 	for i in range(0, iterations):
@@ -84,7 +89,8 @@ def runSimulation( nParticles, iterations, freq, path ):
 		# Write data
 		if freq != 0 and i%freq == 0:
 			dataIO.writePositions( box, path + 'step{}.dat'.format(i) )
-
+	if init == 'i':		# Record if we're generating an initialbox
+		dataIO.writePositions(box, path + 'box.dat')
 	totTime = time.clock() - timeInit
 	print('Took',totTime,'for simulation')
 	print('Computing g of r for final step')
@@ -103,14 +109,23 @@ def runExperiment( numSim, path='data/' ):
 		numSim - numeber of simulations to run
 		path - the path to save the experiment data
 	"""
-	nPart = int(input('Number of particles to run: '))	
-	iterations = int(input('Number of iterations: '))
+	nPart = int(input('Number of particles to run: '))
+	pre = int(input('Initialize box for how many iterations? 0 to generate new every run: '))
+	prepath = ''
+	iterations = int(input('Number of iterations (excluding initial box): '))
 	keep = input('Keep particle position data? (Y/N): ')
 	if keep.lower() == "y":
 		freq = int(input('How often to save state: '))
 	else:
 		freq = 0
 
+	if pre > 0:		# Pregenerate a box
+		print('Pregenerating a box for', pre, 'steps.')
+		timeInit = time.clock()
+		runSimulation( nPart, pre, 0, path + 'initial', 'i')
+		print('Time to initialize:', time.clock() - timeInit)
+		print('==============================================')
+		prepath = path + 'initialbox.dat'
 	print( 'Beginning Experiment')
 
 	gofrtable = []
@@ -119,15 +134,14 @@ def runExperiment( numSim, path='data/' ):
 		# Check if the directory already exists
 		if not os.path.exists(path+'run{}'.format(i)):
 			os.makedirs(path+'run{}'.format(i))
-		runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i))
+		runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i), prepath)
 	
-	print( 'Done Experiment' )
-
-
+	print('Done Experiment')
 
 def main():
 	"""
-
+	Get the path to save experiment data to.
+	Run the desired number of experiments
 	"""
 	path = input("Path to save experiment session? (Default data/): ")
 	if path == "":
