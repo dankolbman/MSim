@@ -2,61 +2,151 @@
 File: 	interpreter.py
 Author:	Dan Kolbman
 Description:
-	A user interface for the simulation evironment.
+	A user interface for the simulation environment.
 """
-def runExperiment( numSim, path='data/' ):
+import time
+import os
+import simulation as sim
+
+class Setting():
+	"""
+	A Class for holding configuration settings.
+	Properties
+	- Name - the setting name
+	- Value - the value of the setting
+	- type - the type of the value stored
+	- desc - description
+	"""
+	__slots__ = ('name','value','type','desc')
+
+def mkSetting(conf, name, value, type, desc=''):
+	""" Constructor for Setting type """
+	nSetting = Setting()
+	nSetting.name = name
+	nSetting.value = value
+	nSetting.type = type
+	nSetting.desc = desc
+	# Assign the setting to the dictionary
+	conf[name] = nSetting
+
+##### End class definitions
+
+def runExperiment(conf):
 	"""
 	runExperiment : Integer String -> None
-
 	Runs a set of identical simulations a set number of times.
-
 	Parameters:
 		numSim - numeber of simulations to run
 		path - the path to save the experiment data
 	"""
-	nPart = int(input('Number of particles to run: '))
-	pre = int(input('Initialize box for how many iterations? 0 to generate new every run: '))
-	prepath = ''
-	iterations = int(input('Number of iterations (excluding initial box): '))
-	keep = input('Keep particle position data? (Y/N): ')
-	if keep.lower() == "y":
-		freq = int(input('How often to save state: '))
-	else:
-		freq = 0
-
-	if pre > 0:             # Pregenerate a box
-		print('Pregenerating a box for', pre, 'steps.')
+	# Pregenerate a box if needed
+	if conf['initIter'].value > 0:
+		print('=> Pregenerating a box for', conf['initIter'].value, 'steps.')
 		timeInit = time.clock()
-		runSimulation( nPart, pre, 0, path + 'initial', 'i')
-		print('Time to initialize:', time.clock() - timeInit)
-		print('==============================================')
-		prepath = path + 'initialbox.dat'
-	print( 'Beginning Experiment')
+		# Calling the simulation function
+		# TODO: Only pass conf
+		sim.runSimulation( conf['numPart'].value,\
+			conf['iter'].value, 0, conf['path'].value + 'initial', 'i')
+		print('=> Time to initialize:', time.clock() - timeInit)
+		prepath = conf['path'].value + 'initialbox.dat'
+		print('=> Saved initial box to', prepath)
+	
+	print('---------------------------')
+	print('=> Beginning Experiment:')
 	gofrtable = []
 	# Run each simulation
-	for i in range(0, numSim):
+	for i in range(0, conf['numSim'].value):
+		print('---------------------------')
+		print('=> Running Simulation',i)
 		# Check if the directory already exists
-		if not os.path.exists(path+'run{}'.format(i)):
-			os.makedirs(path+'run{}'.format(i))
-		runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i), prepath)
-	print('Done Experiment')
+		if not os.path.exists(conf['path'].value + 'run{}'.format(i)):
+			print('=> Making new directory:', 'run{}.dat'.format(i))
+			os.makedirs(conf['path'].value + 'run{}'.format(i))
 
+		sim.runSimulation( conf['numPart'].value, conf['iter'].value, conf['freq'].value, conf['path'].value + 'run{}/'.format(i), prepath)
+	print('=> Done Experiment')
+			
+
+def assignSetting(conf, string):
+	""" assignSetting : Dict(Setting) String -> None
+	Assigns a value to a setting and handles errors.
+	Based on a 'setting value' string input'
+	"""
+	cmd = string.split()
+	try:
+		# Attempts to cast to the proper type
+		conf[cmd[0]].value = conf[cmd[0]].type(cmd[1])
+	except KeyError:	# The setting does not exist
+		print('!!', cmd[0], 'is not a property.')
+	except ValueError:	# The user tried to enter a different type than expected
+		print('!! Could not assign. Was expecting type', conf[cmd[0]].type)
+
+def defaultConfig():
+	"""Returns the default configuration dictionary."""
+	conf = dict()
+	mkSetting(conf,'freq',1000,int,'The number of iterations between state saves')
+	mkSetting(conf,'initIter',10000,int,'The number of iterations used to create an itial box')
+	mkSetting(conf,'initPath','',str,'The path to save the initial box to')
+	mkSetting(conf,'iter',5000,int,'The number of iterations to run each simulation for in\n\
+			addition to the number used for the initial box.')
+	mkSetting(conf,'keep',False,bool,'Whether or not to save inbetween box states,\n\
+			0 = False, true otherwise')
+	mkSetting(conf,'numPart',400,int,'The number of particles to run')
+	mkSetting(conf,'numSim',1,int,'The number of simulations to run')
+	mkSetting(conf,'path', 'data/', str,'The path to save data output to')
+	
+	return conf
+
+def printConfig(conf):
+	""" Prints the configuration output to terminal"""
+	print('== Current Configuration ==')
+	for key in conf:
+		print('--', key, '=', conf[key].value) # Debug:,'\t',type(conf[key].value))
+	print('===========================')
+
+def printHelp(conf):
+	""" Prints commands and properties """
+	print('== Available Commands ==')
+	print('-- config - display current config')
+	print('-- help - display this output')
+	print('-- property value - change that property in the config')
+	print('-- run - run simulation(s) with current config')
+	print('========================')
+	print('Configuration properties:')
+	for key in conf:
+		print('--', key, '\t', conf[key].desc)
+	print('========================')
+	
 def main():
 	"""
-	Get the path to save experiment data to.
-	Run the desired number of experiments
+	Main program loop
+	Displays title and enters a terminal interface.
+	User can enter commands here and run simulations.
 	"""
+	# Load a default configuration
+	conf = defaultConfig()
 	print('========================================')
-	print('-- Molecular Box Simulator')
+	print('-------- Molecular Box Simulator -------')
 	print('----------------------------------------')
-	path = input("Path to save experiment session? (Default data/): ")
-	if path == "":
-		path = "data/"
-	numExp  = 1
-	while (numExp > 0 ):
-		numSim = int(input('Number of simulations to run: '))
-		runExperiment( numSim, path +'experiment{}/'.format(numExp) )
-		if input('Do another experiment? (Y/N): ').lower() == 'n':
-			numExp = -1
-		numExp += 1
+	printConfig(conf)
+	print('-- For a list of commands, enter "help"')
+	running = True
+	# Terminal loop
+	while running:
+		cmd = input('> ')
+		cmdLower = cmd.lower()#.split()
+		if cmdLower == 'exit':
+			running = False
+		elif cmdLower == 'config':
+			printConfig(conf)
+		elif cmdLower == 'help':
+			printHelp(conf)
+		elif len(cmd.split()) > 1:
+			assignSetting(conf, cmd)	
+		elif cmdLower == 'run':
+			runExperiment(conf)
+		else:
+			print('Command not found. Type \'exit\' to exit')
 
+if __name__ == '__main__':
+	main()

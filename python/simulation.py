@@ -1,23 +1,20 @@
 """
 File:   simulation.py
 Name:   Dan Kolbman
-Date:   Fall 2013
 Description:
 	Provides a front end for the user to input parameters and run
 	experiments.
 """
-
-
-import dataIO
-import lattice
-import boltzmann
-import stats
-
 import math
 import random
 import time
 import os
 import gc
+
+import dataIO
+import lattice
+import boltzmann
+import stats
 
 def monteCarloStep( pos, jumpSize, size, potRad, radSep ):
 	"""
@@ -89,15 +86,17 @@ def runSimulation( nParticles, iterations, freq, path, init='' ):
 		# Write data
 		if freq != 0 and i%freq == 0:
 			dataIO.writePositions( box, path + 'step{}.dat'.format(i) )
+			print('=> Wrote box to', path + 'step{}.dat'.format(i))
 	if init == 'i':		# Record if we're generating an initialbox
 		dataIO.writePositions(box, path + 'box.dat')
 	totTime = time.clock() - timeInit
-	print('Took',totTime,'for simulation')
-	print('Computing g of r for final step')
+	print('=> Took',totTime,'for simulation')
+	print('=> Computing g of r for final step')
 	gofr = stats.radDistribution( box, 1, 0.005 )
 	dataIO.writeGofR(gofr, path + 'gofrStep{}.dat'.format(iterations))
-	print('Took',time.clock() - totTime - timeInit, 'for g(r)')
-	print('Total time:',time.clock()-timeInit)
+	print('=> Wrote box to', path + 'gofrStep{}.dat'.format(iterations))
+	print('=> Took',time.clock() - totTime - timeInit, 'for g(r)')
+	print('=> Total time:',time.clock()-timeInit)
 
 def runExperiment( numSim, path='data/' ):
 	"""
@@ -140,9 +139,14 @@ def runExperiment( numSim, path='data/' ):
 
 def main():
 	"""
+	!!!!!!!!!!
+	LEGACY CODE
+	interpreter.py should be used for the user interface
+
 	Get the path to save experiment data to.
 	Run the desired number of experiments
 	"""
+	print('WARNING!!!\nDid you mean to run interpreter.py?')
 	path = input("Path to save experiment session? (Default data/): ")
 	if path == "":
 		path = "data/"
@@ -156,5 +160,6 @@ def main():
 	
 
 
-main()
+if __name__ == '__main__':
+	main()
 
