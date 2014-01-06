@@ -7,6 +7,8 @@ Description:
 import time
 import os
 import simulation as sim
+import stats
+import dataIO
 
 class Setting():
 	"""
@@ -28,25 +30,25 @@ def mkSetting(conf, name, value, type, desc=''):
 	nSetting.desc = desc
 	# Assign the setting to the dictionary
 	conf[name] = nSetting
+	return nSetting
 
 ##### End class definitions
 
 def runExperiment(conf):
 	"""
-	runExperiment : Integer String -> None
+	runExperiment : Configuration(dict) -> None
 	Runs a set of identical simulations a set number of times.
 	Parameters:
-		numSim - numeber of simulations to run
-		path - the path to save the experiment data
+		conf - the configuration
 	"""
+	prepath = ''
 	# Pregenerate a box if needed
 	if conf['initIter'].value > 0:
 		print('=> Pregenerating a box for', conf['initIter'].value, 'steps.')
 		timeInit = time.clock()
 		# Calling the simulation function
 		# TODO: Only pass conf
-		sim.runSimulation( conf['numPart'].value,\
-			conf['iter'].value, 0, conf['path'].value + 'initial', 'i')
+		sim.runSimulation( conf, 'i')
 		print('=> Time to initialize:', time.clock() - timeInit)
 		prepath = conf['path'].value + 'initialbox.dat'
 		print('=> Saved initial box to', prepath)
@@ -63,8 +65,12 @@ def runExperiment(conf):
 			print('=> Making new directory:', 'run{}.dat'.format(i))
 			os.makedirs(conf['path'].value + 'run{}'.format(i))
 
-		sim.runSimulation( conf['numPart'].value, conf['iter'].value, conf['freq'].value, conf['path'].value + 'run{}/'.format(i), prepath)
+		gofrtable.append(sim.runSimulation( conf, prepath))
 	print('=> Done Experiment')
+	print('Try to average gofr')
+	gofr = stats.averageGofR(gofrtable)
+	print('Saved average g(r) to',conf['path'].value+'avGafR.dat')
+	dataIO.writeGofR(gofr, conf['path'].value + 'avGofR.dat')
 			
 
 def assignSetting(conf, string):
@@ -86,7 +92,7 @@ def defaultConfig():
 	conf = dict()
 	mkSetting(conf,'freq',1000,int,'The number of iterations between state saves')
 	mkSetting(conf,'initIter',10000,int,'The number of iterations used to create an itial box')
-	mkSetting(conf,'initPath','',str,'The path to save the initial box to')
+	mkSetting(conf,'initPath','data/init.dat',str,'The path to save the initial box to')
 	mkSetting(conf,'iter',5000,int,'The number of iterations to run each simulation for in\n\
 			addition to the number used for the initial box.')
 	mkSetting(conf,'keep',False,bool,'Whether or not to save inbetween box states,\n\
@@ -94,6 +100,9 @@ def defaultConfig():
 	mkSetting(conf,'numPart',400,int,'The number of particles to run')
 	mkSetting(conf,'numSim',1,int,'The number of simulations to run')
 	mkSetting(conf,'path', 'data/', str,'The path to save data output to')
+	mkSetting(conf,'radSep', 0.0968051, float,'The radial separaration')
+	mkSetting(conf,'potRange', 0.121006, float,'The potential range')
+	mkSetting(conf,'jumpSize', 0.05, float,'The jump size used to move a particle every step')
 	
 	return conf
 

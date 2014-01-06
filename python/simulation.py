@@ -44,8 +44,6 @@ def monteCarloStep( pos, jumpSize, size, potRad, radSep ):
 
 	# Calculate new pair energy factors for new position
 	newBFPC = boltzmann.productPairEnergyBoltzmannFactors( pos, newPos, size, potRad, radSep )
-
-
 	# Do monte carlo, compare new Boltzmann factors to old
 	if oldBFPC <= 0:
 		pos.append( randPart )
@@ -58,7 +56,7 @@ def monteCarloStep( pos, jumpSize, size, potRad, radSep ):
 		pos.append( randPart )
 		return pos
 	
-def runSimulation( nParticles, iterations, freq, path, init='' ):
+def runSimulation(conf, init='' ):
 	"""
 	runSimulation : Integer Integer Integer -> None
 	Run a monte carlo simulation
@@ -70,43 +68,49 @@ def runSimulation( nParticles, iterations, freq, path, init='' ):
 		path - where to save file
 		init - the path to an initial box
 	"""
-	# Pre defined
-	#TODO: These should be part of the configuration
-	radSeperation = 0.0968051
-	jumpSize  = 0.05
-	potentialRange = 0.121006
 	if init != '' and init != 'i' :		# Load in the initial configuration
-		box = dataIO.readPositions(init) 
+		box = dataIO.readPositions(conf['initPath'].value)
 	else:			# Make a box with a lattice
 		# Get an initial lattice placment of particles
-		box = lattice.latticeInit( nParticles )
+		box = lattice.latticeInit(conf['numPart'].value)
 	# Start timer
 	timeInit = time.clock()
+	if init == '' or 'i':
+		iterations = conf['initIter'].value
+	else:
+		iterations = conf['iter'].value
 	for i in range(0, iterations):
-		box = monteCarloStep( box, jumpSize, 1, potentialRange, radSeperation )
+		box = monteCarloStep( box,\
+					conf['jumpSize'].value,\
+					1,\
+					conf['potRange'].value,\
+					conf['radSep'].value )
 		# Write data
 		#TODO: freq should be 'keep'
-		if freq != 0 and i%freq == 0:
-			dataIO.writePositions( box, path + 'step{}.dat'.format(i) )
-			print('=> Wrote box to', path + 'step{}.dat'.format(i))
+		if conf['keep'].value and i%conf['keep'].value == 0:
+			dataIO.writePositions( box, conf['path'].value + 'step{}.dat'.format(i))
+			print('=> Wrote box to', conf['path'].value + 'step{}.dat'.format(i))
+
 	if init == 'i':		# Record if we're generating an initialbox
-		dataIO.writePositions(box, path + 'box.dat')
+		dataIO.writePositions(box, conf['initPath'].value)
+
 	totTime = time.clock() - timeInit
 	print('=> Took',totTime,'for simulation')
 	print('=> Computing g of r for final step')
 	gofr = stats.radDistribution( box, 1, 0.005 )
-	dataIO.writeGofR(gofr, path + 'gofrFinal.dat'))
-	print('=> Wrote box to', path + 'gofrFinal.dat')
+	dataIO.writeGofR(gofr, conf['path'].value + 'gofrFinal.dat')
+	print('=> Wrote box to', conf['path'].value  + 'gofrFinal.dat')
 	print('=> Took',time.clock() - totTime - timeInit, 'for g(r)')
 	print('=> Total time:',time.clock()-timeInit)
+	return gofr
 
+"""
 def avGofR(path):
-	"""
-	Averages g(r) from different output files.
-	"""
+	#Averages g(r) from different output files.
 	subdirs = [sub for sub in os.listdir(path) if os.path.isdir(path + sub)]
 	for subdir in subdirs:
 		gofr( 
+"""
 
 def runExperiment( numSim, path='data/' ):
 	"""
@@ -143,8 +147,11 @@ def runExperiment( numSim, path='data/' ):
 		# Check if the directory already exists
 		if not os.path.exists(path+'run{}'.format(i)):
 			os.makedirs(path+'run{}'.format(i))
-		runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i), prepath)
-	
+		gofrtable.append(runSimulation( nPart, iterations, freq, path + 'run{}/'.format(i), prepath))
+	print('!!!! Going to try to average g(r)')
+	gofr = stats.averageGofR(gafrtable)
+	print('Saved average g(r) to',path+'avGafR.dat')
+	dataIO.writeGofR(gofr, path + 'avGofR.dat')
 	print('Done Experiment')
 
 def main():
@@ -167,9 +174,6 @@ def main():
 		if input('Do another experiment? (Y/N): ').lower() == 'n':
 			numExp = -1
 		numExp += 1
-	
-
 
 if __name__ == '__main__':
 	main()
-
