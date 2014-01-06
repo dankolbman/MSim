@@ -40,6 +40,16 @@ def writeGofR(gofr, filen):
 		fileout.write('\n')
 	fileout.close()
 
+def readGofR(path):
+	""" Read g(r) file and return it """
+	gofr = []
+	filein = open(path,'r')
+	for line in filein:
+		line = line.split()
+		gofr.append(line[1])
+	filein.close()
+	return gofr
+
 def readPositions(path):
 	"""
 	Read particle positions from file

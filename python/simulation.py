@@ -71,6 +71,7 @@ def runSimulation( nParticles, iterations, freq, path, init='' ):
 		init - the path to an initial box
 	"""
 	# Pre defined
+	#TODO: These should be part of the configuration
 	radSeperation = 0.0968051
 	jumpSize  = 0.05
 	potentialRange = 0.121006
@@ -84,6 +85,7 @@ def runSimulation( nParticles, iterations, freq, path, init='' ):
 	for i in range(0, iterations):
 		box = monteCarloStep( box, jumpSize, 1, potentialRange, radSeperation )
 		# Write data
+		#TODO: freq should be 'keep'
 		if freq != 0 and i%freq == 0:
 			dataIO.writePositions( box, path + 'step{}.dat'.format(i) )
 			print('=> Wrote box to', path + 'step{}.dat'.format(i))
@@ -93,10 +95,18 @@ def runSimulation( nParticles, iterations, freq, path, init='' ):
 	print('=> Took',totTime,'for simulation')
 	print('=> Computing g of r for final step')
 	gofr = stats.radDistribution( box, 1, 0.005 )
-	dataIO.writeGofR(gofr, path + 'gofrStep{}.dat'.format(iterations))
-	print('=> Wrote box to', path + 'gofrStep{}.dat'.format(iterations))
+	dataIO.writeGofR(gofr, path + 'gofrFinal.dat'))
+	print('=> Wrote box to', path + 'gofrFinal.dat')
 	print('=> Took',time.clock() - totTime - timeInit, 'for g(r)')
 	print('=> Total time:',time.clock()-timeInit)
+
+def avGofR(path):
+	"""
+	Averages g(r) from different output files.
+	"""
+	subdirs = [sub for sub in os.listdir(path) if os.path.isdir(path + sub)]
+	for subdir in subdirs:
+		gofr( 
 
 def runExperiment( numSim, path='data/' ):
 	"""

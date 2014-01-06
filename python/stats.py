@@ -13,7 +13,6 @@ def binCounts( separations, size, resolution ):
 	"""
 	Create a histogram for particle particle separations
 	"""
-
 	bins = []
 	width = 0
 	# Iterate over each bin
@@ -33,10 +32,8 @@ def radDistribution( positions, size, resolution ):
 	"""
 	Calculate the radial distribution of particles
 	"""
-
 	# Number of particles
 	numPart = len( positions )
-	
 	# The differences in positions
 	posDiff = []
 	# The radial seperation
