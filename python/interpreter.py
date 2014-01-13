@@ -34,45 +34,6 @@ def mkSetting(conf, name, value, type, desc=''):
 
 ##### End class definitions
 
-def runExperiment(conf):
-	"""
-	runExperiment : Configuration(dict) -> None
-	Runs a set of identical simulations a set number of times.
-	Parameters:
-		conf - the configuration
-	"""
-	prepath = ''
-	# Pregenerate a box if needed
-	if conf['initIter'].value > 0:
-		print('=> Pregenerating a box for', conf['initIter'].value, 'steps.')
-		timeInit = time.clock()
-		# Calling the simulation function
-		# TODO: Only pass conf
-		sim.runSimulation( conf, 'i')
-		print('=> Time to initialize:', time.clock() - timeInit)
-		prepath = conf['path'].value + 'initialbox.dat'
-		print('=> Saved initial box to', prepath)
-	
-	print('---------------------------')
-	print('=> Beginning Experiment:')
-	gofrtable = []
-	# Run each simulation
-	for i in range(0, conf['numSim'].value):
-		print('---------------------------')
-		print('=> Running Simulation',i)
-		# Check if the directory already exists
-		if not os.path.exists(conf['path'].value + 'run{}'.format(i)):
-			print('=> Making new directory:', 'run{}.dat'.format(i))
-			os.makedirs(conf['path'].value + 'run{}'.format(i))
-
-		gofrtable.append(sim.runSimulation( conf, prepath, i))
-	print('=> Done Experiment')
-	print('Try to average gofr')
-	gofr = stats.averageGofR(gofrtable)
-	print('Saved average g(r) to',conf['path'].value+'avGafR.dat')
-	dataIO.writeGofR(gofr, conf['path'].value + 'avGofR.dat')
-			
-
 def assignSetting(conf, string):
 	""" assignSetting : Dict(Setting) String -> None
 	Assigns a value to a setting and handles errors.
@@ -86,29 +47,20 @@ def assignSetting(conf, string):
 		print('!!', cmd[0], 'is not a property.')
 	except ValueError:	# The user tried to enter a different type than expected
 		print('!! Could not assign. Was expecting type', conf[cmd[0]].type)
-def avGofR(string):
-	""" Averages several g(r) functions from all g(r)
-	files in directory
-	"""
-	path = string.split()[1]
-	print('=> Averaging all functions in', path)
-	av = sim.avGofR(path)
-	dataIO.writeGofR(av, path + 'avGofR.dat')
-	print('=> Average g(r) written to', path + 'avGofR.dat')
 
 def defaultConfig():
 	"""Returns the default configuration dictionary."""
 	conf = dict()
-	mkSetting(conf,'freq',1000,int,'The number of iterations between state saves')
-	mkSetting(conf,'initIter',10000,int,'The number of iterations used to create an itial box')
-	mkSetting(conf,'initPath','data/init.dat',str,'The path to save the initial box to')
-	mkSetting(conf,'iter',5000,int,'The number of iterations to run each simulation for in\n\
-			addition to the number used for the initial box.')
-	mkSetting(conf,'keep',False,bool,'Whether or not to save inbetween box states,\n\
-			0 = False, true otherwise')
+	mkSetting(conf,'freq',5000,int,'The number of iterations between state saves')
+	mkSetting(conf,'initIter',10000,int,'The number of iterations used to create an intial box')
+	mkSetting(conf,'iter',25000,int,'The number of max iterations')
+	mkSetting(conf,'initPath','data/init.dat',str,'The path to save the initial box to or load\n\
+			from if useInit = True')
+	mkSetting(conf,'useInit',False,bool,'Whether or not to start fro a prespecified file.')
+	#mkSetting(conf,'keepPos',False,bool,'Whether or not to save inbetween box states,\n\
+	#		0 = False, true otherwise')
 	mkSetting(conf,'numPart',400,int,'The number of particles to run')
 	mkSetting(conf,'size',1,int,'The size of the box')
-	mkSetting(conf,'numSim',1,int,'The number of simulations to run')
 	mkSetting(conf,'path', 'data/', str,'The path to save data output to')
 	mkSetting(conf,'radSep', 0.0968051, float,'The radial separaration')
 	mkSetting(conf,'potRange', 0.121006, float,'The potential range')
@@ -165,7 +117,8 @@ def main():
 		elif len(cmd.split()) > 1:
 			assignSetting(conf, cmd)	
 		elif cmdLower == 'run':
-			runExperiment(conf)
+			#runExperiment(conf)
+			sim.runSimulation(conf)
 		else:
 			print('Command not found. Type \'exit\' to exit')
 
