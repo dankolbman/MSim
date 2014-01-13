@@ -56,7 +56,7 @@ def monteCarloStep( pos, jumpSize, size, potRad, radSep ):
 		pos.append( randPart )
 		return pos
 	
-def runSimulation(conf, init='' ):
+def runSimulation(conf, init='' , num=''):
 	"""
 	runSimulation : Integer Integer Integer -> None
 	Run a monte carlo simulation
@@ -72,45 +72,49 @@ def runSimulation(conf, init='' ):
 		box = dataIO.readPositions(conf['initPath'].value)
 	else:			# Make a box with a lattice
 		# Get an initial lattice placment of particles
-		box = lattice.latticeInit(conf['numPart'].value)
+		box = lattice.latticeInit(conf['numPart'].value, conf['size'].value)
 	# Start timer
 	timeInit = time.clock()
 	if init == '' or 'i':
 		iterations = conf['initIter'].value
 	else:
 		iterations = conf['iter'].value
+	# Run simulation iterations
 	for i in range(0, iterations):
 		box = monteCarloStep( box,\
 					conf['jumpSize'].value,\
-					1,\
+					conf['size'].value,\
 					conf['potRange'].value,\
 					conf['radSep'].value )
 		# Write data
-		#TODO: freq should be 'keep'
-		if conf['keep'].value and i%conf['keep'].value == 0:
+		if conf['keep'].value and i%conf['freq'].value == 0:
 			dataIO.writePositions( box, conf['path'].value + 'step{}.dat'.format(i))
 			print('=> Wrote box to', conf['path'].value + 'step{}.dat'.format(i))
-
+	# Write data
 	if init == 'i':		# Record if we're generating an initialbox
 		dataIO.writePositions(box, conf['initPath'].value)
-
+		print('=> Saved initial box to', conf['initPath'].value)
 	totTime = time.clock() - timeInit
 	print('=> Took',totTime,'for simulation')
 	print('=> Computing g of r for final step')
-	gofr = stats.radDistribution( box, 1, 0.005 )
-	dataIO.writeGofR(gofr, conf['path'].value + 'gofrFinal.dat')
-	print('=> Wrote box to', conf['path'].value  + 'gofrFinal.dat')
+	gofr = stats.radDistribution(box, conf['size'].value, 0.005)
+	if init != 'i':
+		dataIO.writeGofR(gofr, conf['path'].value + 'run{}/gofrFinal.dat'.format(num))
+		print('=> Wrote g(r) to', conf['path'].value  + 'run{}/gofrFinal.dat'.format(num))
 	print('=> Took',time.clock() - totTime - timeInit, 'for g(r)')
 	print('=> Total time:',time.clock()-timeInit)
 	return gofr
 
-"""
 def avGofR(path):
 	#Averages g(r) from different output files.
 	subdirs = [sub for sub in os.listdir(path) if os.path.isdir(path + sub)]
+	if len(subdirs) > 0:
+		print('!! No directories in', path)
+		return
+	gofrtable = []
 	for subdir in subdirs:
-		gofr( 
-"""
+		gofrtable.append(stats.readGofR(path + subdir + '/gofrFinal.dat'))
+	return stats.averageGofR(gofrtable)
 
 def runExperiment( numSim, path='data/' ):
 	"""

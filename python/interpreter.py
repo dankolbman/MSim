@@ -65,7 +65,7 @@ def runExperiment(conf):
 			print('=> Making new directory:', 'run{}.dat'.format(i))
 			os.makedirs(conf['path'].value + 'run{}'.format(i))
 
-		gofrtable.append(sim.runSimulation( conf, prepath))
+		gofrtable.append(sim.runSimulation( conf, prepath, i))
 	print('=> Done Experiment')
 	print('Try to average gofr')
 	gofr = stats.averageGofR(gofrtable)
@@ -86,6 +86,15 @@ def assignSetting(conf, string):
 		print('!!', cmd[0], 'is not a property.')
 	except ValueError:	# The user tried to enter a different type than expected
 		print('!! Could not assign. Was expecting type', conf[cmd[0]].type)
+def avGofR(string):
+	""" Averages several g(r) functions from all g(r)
+	files in directory
+	"""
+	path = string.split()[1]
+	print('=> Averaging all functions in', path)
+	av = sim.avGofR(path)
+	dataIO.writeGofR(av, path + 'avGofR.dat')
+	print('=> Average g(r) written to', path + 'avGofR.dat')
 
 def defaultConfig():
 	"""Returns the default configuration dictionary."""
@@ -98,6 +107,7 @@ def defaultConfig():
 	mkSetting(conf,'keep',False,bool,'Whether or not to save inbetween box states,\n\
 			0 = False, true otherwise')
 	mkSetting(conf,'numPart',400,int,'The number of particles to run')
+	mkSetting(conf,'size',1,int,'The size of the box')
 	mkSetting(conf,'numSim',1,int,'The number of simulations to run')
 	mkSetting(conf,'path', 'data/', str,'The path to save data output to')
 	mkSetting(conf,'radSep', 0.0968051, float,'The radial separaration')
@@ -150,6 +160,8 @@ def main():
 			printConfig(conf)
 		elif cmdLower == 'help':
 			printHelp(conf)
+		elif cmdLower.split()[0] == 'average':
+			avGofR(cmd)
 		elif len(cmd.split()) > 1:
 			assignSetting(conf, cmd)	
 		elif cmdLower == 'run':
