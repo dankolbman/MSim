@@ -10,6 +10,7 @@ import random
 import time
 import os
 import gc
+from subprocess import call
 
 import dataIO
 import lattice
@@ -69,6 +70,7 @@ def runSimulation(conf):
 		print('=> Generating a lattice')
 		box = lattice.latticeInit(conf['numPart'].value, conf['size'].value)
 		print('=> Initializing lattice for', conf['initIter'].value,'steps')
+		# Call to C g(r) function
 		for i in range(0, conf['initIter'].value):
 			box = monteCarloStep( box,\
 					conf['jumpSize'].value,\
@@ -90,29 +92,22 @@ def runSimulation(conf):
 					conf['radSep'].value )
 		# Write data
 		if i%conf['freq'].value == 0:
-			dataIO.writePositions( box, conf['path'].value + 'step{}.dat'.format(i))
+			dataIO.writePositions( box, conf['path'].value + 'step{}.pos'.format(i))
 			### Evaluate g(r)
-			print('=> Wrote box to', conf['path'].value + 'step{}.dat'.format(i))
+			print('=> Wrote box to', conf['path'].value + 'step{}.pos'.format(i))
+			print('=> Calling g(r) program')
+			call(['./gr',\
+				str(conf['path'].value + 'step{}.pos'.format(i)),\
+				str(conf['path'].value + 'grstep{}.dat'.format(i)),\
+				str(conf['numPart'].value),\
+				str(conf['size'].value),\
+				str(conf['numBins'].value) ])
+			print('=> Wrote g(r) to', conf['path'].value + 'gr{}.dat'.format(i))
 	totTime = time.clock() - timeInit
 	print('=> Took',totTime,'for', conf['iter'].value, 'steps')
-	#gofr = stats.radDistribution(box, conf['size'].value, 0.005)
-	#if init != 'i':
-	#	dataIO.writeGofR(gofr, conf['path'].value + 'run{}/gofrFinal.dat'.format(num))
-	#	print('=> Wrote g(r) to', conf['path'].value  + 'run{}/gofrFinal.dat'.format(num))
-	#print('=> Took',time.clock() - totTime - timeInit, 'for g(r)')
-	#print('=> Total time:',time.clock()-timeInit)
-	#return gofr
-
-def avGofR(path):
-	#Averages g(r) from different output files.
-	subdirs = [sub for sub in os.listdir(path) if os.path.isdir(path + sub)]
-	if len(subdirs) > 0:
-		print('!! No directories in', path)
-		return
-	gofrtable = []
-	for subdir in subdirs:
-		gofrtable.append(stats.readGofR(path + subdir + '/gofrFinal.dat'))
-	return stats.averageGofR(gofrtable)
+	print('=> Averageing g(r)')
+	timeInit = time.clock()
+	stats.avGofR(conf)
 
 def main():
 	"""

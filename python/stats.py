@@ -5,6 +5,9 @@ Date:   Fall 2013
 Description:
         A module for initializing a latice in 3D space.
 """
+import os
+import time
+from subprocess import call
 
 import math
 import dataIO
@@ -75,7 +78,7 @@ def radDistribution( positions, size, resolution ):
 	shellCountsNorm = []
 	
 	for i in range(0, len(shellCounts)):
-		shellCountsNorm.append( ( 2/numPart) * (shellCounts[i] / shellCountsIdeal[i]) - 0.85)
+		shellCountsNorm.append( ( 2/numPart) * (shellCounts[i] / shellCountsIdeal[i]))
 
 	# G(r) sample
 	gofrsample = []
@@ -84,25 +87,59 @@ def radDistribution( positions, size, resolution ):
 			gofrsample.append( [ resolution/2 + i *  resolution, shellCountsNorm[i] ] )
 	return gofrsample
 
+def GofRdir(conf):
+	"""
+	Calculate g(r) for all pos files in the conf directory
+	"""
+	initTime = time.clock()
+	posFiles = []
+	for root, dirs, files in os.walk(conf['path'].value):
+		for f in files:
+			if f.endswith('.pos'):
+				posFiles.append(f)
+	for f in posFiles:
+		fileName = f[:-4]
+		call(['./gr',\
+			str(conf['path'].value + f),\
+			str(conf['path'].value + 'gr{}.dat'.format(fileName)),\
+			str(conf['numPart'].value),\
+			str(conf['size'].value),\
+			str(conf['numBins'].value) ])
+		print('=> Wrote gr{}.dat'.format(fileName))
+	print('=> Took', time.clock()-initTime)
 
-def averageGofR( gofrtbl ):
+def avGofR(conf):
 	"""
-	Calculate the average g(r) from a table of them
+	Read in g(r) functions and average them.
 	"""
+	timeInit = time.clock()
+	funcs = []
+	numFuncs = 1
 	gofr = []
-	app = gofr.append
-	# Iterate each row
-	for row in range(0, len(gofrtbl[0])-1):
-		suma = 0
-		# Iterate each table
-		for tbl in range(0, len(gofrtbl)-1):
-			# Add the g(r) to total for that row
-			suma += gofrtbl[tbl][row][1]
-		# Average
-		suma = suma / len(gofrtbl)
-		app( [ gofrtbl[0][row][0], suma ] )
-
-	return gofr
+	r = []
+	gofrsample = []
+	lineC = 0	# Line counter
+	# Get list of functions to read
+	for root, dirs, files in os.walk(conf['path'].value):
+		for f in files:
+			if f.endswith('.dat'):
+				funcs.append(f)
+	numFuncs = len(funcs)
+	for i in range(0, numFuncs):
+		fileIn = open(conf['path'].value + funcs[i], 'r')
+		lineC = 0
+		for line in fileIn:
+			line = line.split()
+			if(i == 0):
+				r.append(float(line[0]))
+				gofr.append(0)
+			gofr[lineC] += float(line[1])/numFuncs
+			lineC += 1
+		fileIn.close()
+	for i in range(0, len(r)):
+		gofrsample.append([r[i], gofr[i]])
+	dataIO.writeGofR(gofrsample, conf['path'].value + 'avGofR.dat')
+	print("=> Took", time.clock()-timeInit)
 
 def test():
 	"""
