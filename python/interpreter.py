@@ -54,15 +54,16 @@ def defaultConfig():
 	mkSetting(conf,'freq',5000,int,'The number of iterations between state saves')
 	mkSetting(conf,'initIter',10000,int,'The number of iterations used to create an intial box')
 	mkSetting(conf,'iter',25000,int,'The number of max iterations')
-	mkSetting(conf,'initPath','data/init.dat',str,'The path to save the initial box to or load\n\
+	mkSetting(conf,'initPath','data/test/init.pos',str,'The path to save the initial box to or load\n\
 			from if useInit = True')
 	mkSetting(conf,'useInit',False,bool,'Whether or not to start fro a prespecified file.')
 	#mkSetting(conf,'keepPos',False,bool,'Whether or not to save inbetween box states,\n\
 	#		0 = False, true otherwise')
 	mkSetting(conf,'numPart',400,int,'The number of particles to run')
 	mkSetting(conf,'size',1,int,'The size of the box')
-	mkSetting(conf,'path', 'data/', str,'The path to save data output to')
-	mkSetting(conf,'radSep', 0.0968051, float,'The radial separaration')
+	mkSetting(conf,'numBins',150,int,'The number of bins to use for g(r)')
+	mkSetting(conf,'path', 'data/test/', str,'The path to save data output to')
+	mkSetting(conf,'radSep', 0.984745, float,'The radial separaration')
 	mkSetting(conf,'potRange', 0.121006, float,'The potential range')
 	mkSetting(conf,'jumpSize', 0.05, float,'The jump size used to move a particle every step')
 	
@@ -112,8 +113,10 @@ def main():
 			printConfig(conf)
 		elif cmdLower == 'help':
 			printHelp(conf)
+		elif cmdLower == 'gofr':
+			stats.GofRdir(conf)
 		elif cmdLower.split()[0] == 'average':
-			avGofR(cmd)
+			stats.avGofR(conf)
 		elif len(cmd.split()) > 1:
 			assignSetting(conf, cmd)	
 		elif cmdLower == 'run':

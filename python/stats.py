@@ -122,7 +122,7 @@ def avGofR(conf):
 	# Get list of functions to read
 	for root, dirs, files in os.walk(conf['path'].value):
 		for f in files:
-			if f.endswith('.dat'):
+			if f.endswith('.dat') and f[:2] != 'av':
 				funcs.append(f)
 	numFuncs = len(funcs)
 	for i in range(0, numFuncs):

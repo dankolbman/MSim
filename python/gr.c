@@ -50,11 +50,9 @@ void gr(FILE *fin, FILE *fout, int numPart, double size, int numBins){
 			}
 		}
 	}
-
-	
 	for(i=0;i < numBins; i++){
-		gofr[i] /= 4.0/3.0*M_PI*(Cube(i+1) - Cube(i))*Cube(dr)*rho;
-		fprintf(fout, "%lf\t %lf\n", (i+0.5)*dr, gofr[i]/numPart);
+		gofr[i] /= (4.0/3.0)*M_PI*(Cube(i+1) - Cube(i))*Cube(dr)*rho;
+		fprintf(fout, "%lf %lf\n", (i+0.5)*dr, gofr[i]/numPart);
 	}
 	printf("C> Done\n");
 }
@@ -107,4 +105,3 @@ int main(int argc, char **argv){
 	fclose(fout);
 	return 0;
 }
-

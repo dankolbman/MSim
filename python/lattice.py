@@ -20,7 +20,7 @@ def latticeInit(n, size=1):
 		A position list of all particles
 	"""
 	# How many particles per side?
-	sideNum = math.ceil(n**(1/3))
+	sideNum = math.ceil((n)**(1/3))
 	latConst = size/sideNum
 	# The position list
 	positions = []
@@ -40,6 +40,7 @@ def latticeInit(n, size=1):
 					# Append position
 					positions.append( [ x, y, z ] )
 					numPart += 1
+	print('=> Initialized with', numPart, 'particles')
 	return positions
 
 

@@ -19,15 +19,17 @@ def productPairEnergyBoltzmannFactors( positions, part, size, potRad, radSep ):
 	Returns:
 		The Boltzmann factor
 	"""
-
-
 	withinPot = []
 	for pos in positions:
 		dx = part[0] - pos[0]
 		dy = part[1] - pos[1]
 		dz = part[2] - pos[2]
-
+		
 		# Periodic boundaries
+		dx = dx - size*round(dx/size)
+		dy = dy - size*round(dy/size)
+		dz = dz - size*round(dz/size)
+		"""
 		if dx > size/2:
 			dx = dx - size
 		elif dx <= -size/2:
@@ -40,10 +42,11 @@ def productPairEnergyBoltzmannFactors( positions, part, size, potRad, radSep ):
 			dz = dz - size
 		elif dz <= -size/2:
 			dz = dz + size
-		dist =  math.sqrt(dx**2 + dy**2 + dz**2)
+		"""
+		dist =  math.sqrt(dx*dx + dy*dy + dz*dz)
 		# Append to list if in range
-		if  dist < potRad*2:
-			withinPot.append(pos)
+		if  dist < potRad*2 and dist > 0:
+			#withinPot.append(pos)
 			if dist < radSep:
 				# Within core, boltzmann factor = 0
 				return 0
