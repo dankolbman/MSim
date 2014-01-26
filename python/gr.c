@@ -42,7 +42,7 @@ void gr(FILE *fin, FILE *fout, int numPart, double size, int numBins){
 			dy = dy - size*round(dy/size);
 			
 			dz = z[i] - z[j];
-			dz = dz - size*round(dy/size);
+			dz = dz - size*round(dz/size);
 			
 			dist = sqrt( dx*dx + dy*dy + dz*dz);
 			if(dist < 0.5*size){
@@ -52,7 +52,7 @@ void gr(FILE *fin, FILE *fout, int numPart, double size, int numBins){
 	}
 	for(i=0;i < numBins; i++){
 		gofr[i] /= (4.0/3.0)*M_PI*(Cube(i+1) - Cube(i))*Cube(dr)*rho;
-		fprintf(fout, "%lf %lf\n", (i+0.5)*dr, gofr[i]/numPart);
+		fprintf(fout, "%0.16f %0.32f\n", (i+0.5)*dr, gofr[i]/numPart);
 	}
 	printf("C> Done\n");
 }
