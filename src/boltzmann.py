@@ -46,7 +46,7 @@ def productPairEnergyBoltzmannFactors( positions, part, size, potRad, radSep ):
 		dist =  math.sqrt(dx*dx + dy*dy + dz*dz)
 		# Append to list if in range
 		if  dist < potRad*2 and dist > 0:
-			#withinPot.append(pos)
+			withinPot.append(pos)
 			if dist < radSep:
 				# Within core, boltzmann factor = 0
 				return 0
@@ -55,7 +55,6 @@ def productPairEnergyBoltzmannFactors( positions, part, size, potRad, radSep ):
 	if withinPot == []:
 		# Boltzmann factor = 1
 		return 1
-
 
 	# For hard shell
 	return 1
