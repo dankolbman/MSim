@@ -10,9 +10,9 @@ Coming soon
 ### Use
 The front end prompt is provided by python
 
-   python3 interpreter.py
+	python3 interpreter.py
 
-Available commands and simulation properties can be printed through the prompt by entering     > help
+Available commands and simulation properties can be printed through the prompt by entering	> help
 
 ### Goals
 The aim of this experiment is to model protiens with anisotropic potentials and replicate results from real world observation. The lab experiments are difficult and timely to collect. The use of a model will help in the study of rare events and overall understanding of protien mixing.
