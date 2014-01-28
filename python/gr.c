@@ -11,16 +11,16 @@
 // Calculates the cube of a number
 #define Cube(x) ((x) * (x) * (x))
 
-void gr(FILE *fin, FILE *fout, int numPart, double size, int numBins){
+void gr(FILE *fin, FILE *fout, int numPart, double radSep, double size, int numBins){
 	int line;
 	double dr;		// One shell radius increment 
 	double rho;		// Density
-	double gofr[numBins];	// R
+	double gofr[numBins];
 	int i, j;		// Iterating vars
 	double dx, dy, dz, dist;
 	double x[numPart], y[numPart], z[numPart];
 	
-	printf("C> Begin C version of g(r)\n");
+	//printf("C> Begin C version of g(r)\n");
 	rho = numPart/size;	// Calculate density
 	
 	dr = 0.5*size/numBins;
@@ -52,9 +52,9 @@ void gr(FILE *fin, FILE *fout, int numPart, double size, int numBins){
 	}
 	for(i=0;i < numBins; i++){
 		gofr[i] /= (4.0/3.0)*M_PI*(Cube(i+1) - Cube(i))*Cube(dr)*rho;
-		fprintf(fout, "%0.16f %0.32f\n", (i+0.5)*dr, gofr[i]/numPart);
+		fprintf(fout, "%0.16f %0.32f\n", (i+0.5)*dr/radSep, gofr[i]/numPart);
 	}
-	printf("C> Done\n");
+	printf("C> Wrote g(r)\n");
 }
 
 int main(int argc, char **argv){
@@ -63,8 +63,9 @@ int main(int argc, char **argv){
 	char fileInName[] = "in.dat";
 	char fileOutName[] = "out.dat";
 	int numPart = 400;
+	double radSep = 0.112725;
 	double size = 1;
-	int numBins = 100;
+	int numBins = 150;
 
 	fileIn = fileInName;
 	fileOut = fileOutName;
@@ -85,7 +86,7 @@ int main(int argc, char **argv){
 			fileOut = argv[2];
 			fout = fopen(fileOut, "w");
 			if(fout == NULL){
-				printf("=> Making file %s\n", fileOut);
+				printf("C> Making file %s\n", fileOut);
 				exit(0);
 			}
 		}
@@ -93,14 +94,17 @@ int main(int argc, char **argv){
 			sscanf(argv[3],"%d",&numPart);
 		}
 		if(argc >= 5){		// Use box size
-			sscanf(argv[4],"%lf",&size);
+			sscanf(argv[4],"%lf",&radSep);
 		}
 		if(argc >= 6){		// Use box size
-			sscanf(argv[5],"%d",&numBins);
+			sscanf(argv[5],"%lf",&size);
+		}
+		if(argc >= 7){		// Use box size
+			sscanf(argv[6],"%d",&numBins);
 		}
 	}
-	//printf("Running with in=%s, out=%s, numPart=%d, size=%f, bins=%d\n", fileIn, fileOut, numPart, size, numBins);
-	gr(fin, fout, numPart, size, numBins);
+	//printf("Running with in=%s, out=%s, numPart=%d, radSep=%f size=%f, bins=%d\n", fileIn, fileOut, numPart, radSep, size, numBins);
+	gr(fin, fout, numPart, radSep, size, numBins);
 	fclose(fin);
 	fclose(fout);
 	return 0;

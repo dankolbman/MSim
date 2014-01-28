@@ -76,13 +76,42 @@ def printConfig(conf):
 		print('--', key, '=', conf[key].value) # Debug:,'\t',type(conf[key].value))
 	print('===========================')
 
+def saveConfig(conf, string):
+	""" saveConfig : dict(conf) string -> None
+	Save configuration to file
+	"""
+	cmd = string.split()
+	try:
+		dataIO.writeConfig(conf, cmd[1])
+	except IndexError:
+		print('!! Please specify a path')
+
+def loadConf(conf, string):
+	""" loadConf : dict(conf) string -> None
+	Load a configuration from a file
+	"""
+	cmd = string.split()
+	try:
+		fin = open(cmd[1], 'r')
+		for line in fin:
+			assignSetting(conf, line)
+		fin.close()
+	except IndexError:
+		print('!! Please specify a file path')
+	except IOError:
+		print('!! Problem reading file')
+
 def printHelp(conf):
 	""" Prints commands and properties """
 	print('== Available Commands ==')
+	print('-- average - average g(r) functions in the path')
 	print('-- config - display current config')
 	print('-- help - display this output')
+	print('-- gofr - compute g(r) for boxes in the path')
+	print('-- load path - load configuration from path')
 	print('-- property value - change that property in the config')
 	print('-- run - run simulation(s) with current config')
+	print('-- save path - save the configuration to path')
 	print('========================')
 	print('Configuration properties:')
 	for key in conf:
@@ -111,6 +140,10 @@ def main():
 			running = False
 		elif cmdLower == 'config':
 			printConfig(conf)
+		elif cmdLower.split()[0] == 'save':
+			saveConfig(conf, cmd)
+		elif cmdLower.split()[0] == 'load':
+			loadConf(conf, cmd)
 		elif cmdLower == 'help':
 			printHelp(conf)
 		elif cmdLower == 'gofr':

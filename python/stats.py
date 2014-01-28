@@ -103,6 +103,7 @@ def GofRdir(conf):
 			str(conf['path'].value + f),\
 			str(conf['path'].value + 'gr{}.dat'.format(fileName)),\
 			str(conf['numPart'].value),\
+			str(conf['radSep'].value),\
 			str(conf['size'].value),\
 			str(conf['numBins'].value) ])
 		print('=> Wrote gr{}.dat'.format(fileName))

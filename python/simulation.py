@@ -62,6 +62,19 @@ def runSimulation(conf):
 	runSimulation : conf(dict) -> None
 	Run a monte carlo simulation
 	"""
+	# Do some directory initialization
+	if not os.path.isdir(conf['path'].value):
+		print('=> Making data directory at', conf['path'].value)
+		os.makedirs(conf['path'].value)
+	else:
+		for path, dirs, files in os.walk(conf['path'].value):
+			if len(files) > 0:
+				print('!! Data already exists at', conf['path'].value,'\n\
+!! Procceeding may overwrite data or cause unintended results in calculations\n\
+!! Enter \'y\' to continue or enter to return to terminal')
+				cmd = input('(y/n) > ')
+				if cmd.lower() != 'y':
+					return
 	if conf['useInit'].value:		# Load in the initial configuration
 		print('=> Reading initial position file')
 		box = dataIO.readPositions(conf['initPath'].value)
@@ -100,6 +113,7 @@ def runSimulation(conf):
 				str(conf['path'].value + 'step{}.pos'.format(i)),\
 				str(conf['path'].value + 'grstep{}.dat'.format(i)),\
 				str(conf['numPart'].value),\
+				str(conf['radSep'].value),\
 				str(conf['size'].value),\
 				str(conf['numBins'].value) ])
 			print('=> Wrote g(r) to', conf['path'].value + 'gr{}.dat'.format(i))

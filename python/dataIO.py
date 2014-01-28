@@ -8,8 +8,7 @@ Description:
 
 def writePositions(positions, filen):
 	"""
-	write particle positions to file.
-
+	Write particle positions to file.
 	parameters:
 		postitions - the particle positions
 		filen - the file name to write to
@@ -39,6 +38,17 @@ def writeGofR(gofr, filen):
 		fileout.write(str(dat[1]))
 		fileout.write('\n')
 	fileout.close()
+
+def writeConfig(conf, filen):
+	"""
+	Write a configuration file
+	Parameters:
+		conf - the configuration dict
+		filen - the path to write to
+	"""
+	fout = open(filen, 'w')
+	for key in conf:
+		fout.write(key + ' ' + str(conf[key].value) + '\n')
 
 def readGofR(path):
 	""" Read g(r) file and return it """
