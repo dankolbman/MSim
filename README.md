@@ -5,6 +5,7 @@ This simulator provides a simple model of particles under periodic boundaries us
 The current implementation uses python 3.3 to provide a front end and most utility functions while most computation is implemented (or being ported to) C.
 
 ![Sample radial ditribution function](gr03.png)
+
 A radial distribution function for a simulation with a volume fraction of 0.3 roughly compared to a verlet-weis corrected distribution function.
 
 ### Install
