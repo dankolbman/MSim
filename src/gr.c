@@ -1,7 +1,7 @@
 /*
- *	Calculates the radial distribution function g(r) for
- * 	file of particle positions.
- * 	Dan Kolbman, 2014
+ *  Calculates the radial distribution function g(r) for
+ *  file of particle positions.
+ *  Dan Kolbman, 2014
  */
 #include <stdio.h>
 #include <stdlib.h>
